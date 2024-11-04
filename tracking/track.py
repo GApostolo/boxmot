@@ -72,6 +72,7 @@ def run(args):
         stream=True,
         device=args.device,
         show_conf=args.show_conf,
+        save_conf=True,
         save_txt=args.save_txt,
         show_labels=args.show_labels,
         save=args.save,
