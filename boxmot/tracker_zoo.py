@@ -12,7 +12,7 @@ def get_tracker_config(tracker_type):
 
 
 def create_tracker(tracker_type, tracker_config=None, reid_weights=None, device=None, half=None, per_class=None,
-                   evolve_param_dict=None, is_fast_reid: bool = True,
+                   evolve_param_dict=None, is_fast_reid: bool = False,
                    fast_reid_config: str = "boxmot/appearance/fast_reid/configs/MOT20/sbs_S50.yml",):
     """
     Creates and returns an instance of the specified tracker type.
@@ -75,13 +75,13 @@ def create_tracker(tracker_type, tracker_config=None, reid_weights=None, device=
         sys.path.insert(0, str(project_root))
 
         tracker_mapping = {
-            'strongsort': 'trackers.boxmot.trackers.strongsort.strongsort.StrongSort',
-            'ocsort': 'trackers.boxmot.trackers.ocsort.ocsort.OcSort',
-            'bytetrack': 'trackers.boxmot.trackers.bytetrack.bytetrack.ByteTrack',
-            'botsort': 'trackers.boxmot.trackers.botsort.botsort.BotSort',
-            'deepocsort': 'trackers.boxmot.trackers.deepocsort.deepocsort.DeepOcSort',
-            'hybridsort': 'trackers.boxmot.trackers.hybridsort.hybridsort.HybridSort',
-            'imprassoc': 'trackers.boxmot.trackers.imprassoc.imprassoctrack.ImprAssocTrack'
+            'strongsort': 'tracker.boxmot.boxmot.trackers.strongsort.strongsort.StrongSort',
+            'ocsort': 'tracker.boxmot.boxmot.trackers.ocsort.ocsort.OcSort',
+            'bytetrack': 'tracker.boxmot.boxmot.trackers.bytetrack.bytetrack.ByteTrack',
+            'botsort': 'tracker.boxmot.boxmot.trackers.botsort.botsort.BotSort',
+            'deepocsort': 'tracker.boxmot.boxmot.trackers.deepocsort.deepocsort.DeepOcSort',
+            'hybridsort': 'tracker.boxmot.boxmot.trackers.hybridsort.hybridsort.HybridSort',
+            'imprassoc': 'tracker.boxmot.boxmot.trackers.imprassoc.imprassoctrack.ImprAssocTrack'
         }
 
         module_path, class_name = tracker_mapping[tracker_type].rsplit('.', 1)

@@ -7,7 +7,7 @@ from functools import lru_cache
 import ftfy
 import regex as re
 
-from boxmot.utils import BOXMOT
+from .....utils import BOXMOT
 
 
 @lru_cache()
