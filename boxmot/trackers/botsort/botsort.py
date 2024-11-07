@@ -4,16 +4,16 @@ import torch
 import numpy as np
 from pathlib import Path
 
-from boxmot.motion.kalman_filters.xywh_kf import KalmanFilterXYWH
-from boxmot.appearance.reid_auto_backend import ReidAutoBackend
-from boxmot.motion.cmc.sof import SOF
-from boxmot.trackers.botsort.basetrack import BaseTrack, TrackState
-from boxmot.utils.matching import (embedding_distance, fuse_score,
+from ...motion.kalman_filters.xywh_kf import KalmanFilterXYWH
+from ...appearance.reid_auto_backend import ReidAutoBackend
+from ...motion.cmc.sof import SOF
+from .basetrack import BaseTrack, TrackState
+from ...utils.matching import (embedding_distance, fuse_score,
                                    iou_distance, linear_assignment)
-from boxmot.trackers.basetracker import BaseTracker
-from boxmot.trackers.botsort.botsort_utils import joint_stracks, sub_stracks, remove_duplicate_stracks 
-from boxmot.trackers.botsort.botsort_track import STrack
-from boxmot.motion.cmc import get_cmc_method
+from ..basetracker import BaseTracker
+from .botsort_utils import joint_stracks, sub_stracks, remove_duplicate_stracks
+from .botsort_track import STrack
+from ...motion.cmc import get_cmc_method
 from ...appearance.fast_reid.fast_reid_interfece import FastReIDInterface
 
 

@@ -4,28 +4,28 @@ from collections import OrderedDict
 
 import torch
 from torch import nn
-from boxmot.utils import logger as LOGGER
+from ..utils import logger as LOGGER
 
 # Model Factory and Construction
-from boxmot.appearance.backbones.clip.make_model import make_model
-from boxmot.appearance.backbones.hacnn import HACNN
-from boxmot.appearance.backbones.lmbn.lmbn_n import LMBN_n
-from boxmot.appearance.backbones.mlfn import mlfn
-from boxmot.appearance.backbones.mobilenetv2 import mobilenetv2_x1_0, mobilenetv2_x1_4
-from boxmot.appearance.backbones.osnet import (
+from .backbones.clip.make_model import make_model
+from .backbones.hacnn import HACNN
+from .backbones.lmbn.lmbn_n import LMBN_n
+from .backbones.mlfn import mlfn
+from .backbones.mobilenetv2 import mobilenetv2_x1_0, mobilenetv2_x1_4
+from .backbones.osnet import (
     osnet_ibn_x1_0,
     osnet_x0_5,
     osnet_x0_25,
     osnet_x0_75,
     osnet_x1_0,
 )
-from boxmot.appearance.backbones.osnet_ain import (
+from .backbones.osnet_ain import (
     osnet_ain_x0_5,
     osnet_ain_x0_25,
     osnet_ain_x0_75,
     osnet_ain_x1_0,
 )
-from boxmot.appearance.backbones.resnet import resnet50, resnet101
+from .backbones.resnet import resnet50, resnet101
 
 # Constants
 __model_types = [

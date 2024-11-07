@@ -1,8 +1,8 @@
 import numpy as np
 from pathlib import Path
 
-from boxmot.appearance.backends.base_backend import BaseModelBackend
-from boxmot.appearance.reid_model_factory import (
+from .base_backend import BaseModelBackend
+from ..reid_model_factory import (
     load_pretrained_weights,
 )
 

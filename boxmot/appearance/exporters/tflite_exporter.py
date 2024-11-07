@@ -1,6 +1,6 @@
 import os
-from boxmot.appearance.exporters.base_exporter import BaseExporter
-from boxmot.utils import logger as LOGGER
+from .base_exporter import BaseExporter
+from ...utils import logger as LOGGER
 
 
 class TFLiteExporter(BaseExporter):

@@ -8,12 +8,12 @@ from collections import deque  # [hgx0418] deque for reid feature
 
 import numpy as np
 
-from boxmot.appearance.reid_auto_backend import ReidAutoBackend
-from boxmot.motion.cmc import get_cmc_method
-from boxmot.trackers.hybridsort.association import (
+from ...appearance.reid_auto_backend import ReidAutoBackend
+from ...motion.cmc import get_cmc_method
+from .association import (
     associate_4_points_with_score, associate_4_points_with_score_with_reid,
     cal_score_dif_batch_two_score, embedding_distance, linear_assignment)
-from boxmot.trackers.basetracker import BaseTracker
+from ..basetracker import BaseTracker
 
 
 np.random.seed(0)

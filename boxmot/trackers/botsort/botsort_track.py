@@ -1,9 +1,9 @@
 import numpy as np
 from collections import deque
 
-from boxmot.trackers.botsort.basetrack import BaseTrack, TrackState
-from boxmot.motion.kalman_filters.xywh_kf import KalmanFilterXYWH
-from boxmot.utils.ops import xywh2xyxy, xyxy2xywh
+from .basetrack import BaseTrack, TrackState
+from ...motion.kalman_filters.xywh_kf import KalmanFilterXYWH
+from ...utils.ops import xywh2xyxy, xyxy2xywh
 
 
 class STrack(BaseTrack):

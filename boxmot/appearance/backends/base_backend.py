@@ -3,15 +3,15 @@ import torch
 import gdown
 import numpy as np
 from abc import ABC, abstractmethod
-from boxmot.utils import logger as LOGGER
-from boxmot.appearance.reid_model_factory import (
+from ...utils import logger as LOGGER
+from ..reid_model_factory import (
     get_model_name,
     get_model_url,
     build_model,
     get_nr_classes,
     show_downloadable_models
 )
-from boxmot.utils.checks import RequirementsChecker
+from ...utils.checks import RequirementsChecker
 
 
 class BaseModelBackend:

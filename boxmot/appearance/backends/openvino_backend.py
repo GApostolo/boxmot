@@ -1,8 +1,8 @@
 import numpy as np
 from pathlib import Path
-from boxmot.utils import logger as LOGGER
+from ...utils import logger as LOGGER
 
-from boxmot.appearance.backends.base_backend import BaseModelBackend
+from .base_backend import BaseModelBackend
 
 
 class OpenVinoBackend(BaseModelBackend):

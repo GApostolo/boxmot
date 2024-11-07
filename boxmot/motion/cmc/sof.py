@@ -5,9 +5,9 @@ import time
 import cv2
 import numpy as np
 
-from boxmot.motion.cmc.base_cmc import BaseCMC
-from boxmot.utils import BOXMOT
-from boxmot.utils import logger as LOGGER
+from .base_cmc import BaseCMC
+from ...utils import BOXMOT
+from ...utils import logger as LOGGER
 
 
 class SOF(BaseCMC):

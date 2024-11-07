@@ -3,11 +3,11 @@
 import numpy as np
 from collections import deque
 
-from boxmot.motion.kalman_filters.xyah_kf import KalmanFilterXYAH
-from boxmot.trackers.bytetrack.basetrack import BaseTrack, TrackState
-from boxmot.utils.matching import fuse_score, iou_distance, linear_assignment
-from boxmot.utils.ops import tlwh2xyah, xywh2tlwh, xywh2xyxy, xyxy2xywh
-from boxmot.trackers.basetracker import BaseTracker
+from ...motion.kalman_filters.xyah_kf import KalmanFilterXYAH
+from .basetrack import BaseTrack, TrackState
+from ...utils.matching import fuse_score, iou_distance, linear_assignment
+from ...utils.ops import tlwh2xyah, xywh2tlwh, xywh2xyxy, xyxy2xywh
+from ..basetracker import BaseTracker
 
 
 class STrack(BaseTrack):

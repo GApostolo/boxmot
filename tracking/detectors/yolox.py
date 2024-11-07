@@ -8,7 +8,7 @@ from yolox.exp import get_exp
 from yolox.utils import postprocess
 from yolox.utils.model_utils import fuse_model
 
-from boxmot.utils import logger as LOGGER
+from ...boxmot.utils import logger as LOGGER
 from tracking.detectors.yolo_interface import YoloInterface
 
 # default model weigths for these model names

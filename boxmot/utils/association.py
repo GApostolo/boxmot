@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from boxmot.utils.iou import AssociationFunction
+from .iou import AssociationFunction
 
 
 def speed_direction_batch(dets, tracks):

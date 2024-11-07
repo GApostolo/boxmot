@@ -10,7 +10,7 @@ from ...motion.cmc import get_cmc_method
 from ...motion.kalman_filters.xysr_kf import KalmanFilterXYSR
 from ...motion.kalman_filters.xywh_kf import KalmanFilterXYWH
 from ...utils.association import associate, linear_assignment
-from ...trackers.basetracker import BaseTracker
+from ..basetracker import BaseTracker
 from ...utils.ops import xyxy2xysr
 from ...appearance.fast_reid.fast_reid_interfece import FastReIDInterface
 

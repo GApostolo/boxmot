@@ -5,7 +5,7 @@ import numpy as np
 import scipy
 import torch
 from scipy.spatial.distance import cdist
-from boxmot.utils.iou import AssociationFunction
+from .iou import AssociationFunction
 
 
 """

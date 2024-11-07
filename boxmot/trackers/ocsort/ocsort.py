@@ -7,10 +7,10 @@ import numpy as np
 from collections import deque
 
 
-from boxmot.motion.kalman_filters.xysr_kf import KalmanFilterXYSR
-from boxmot.utils.association import associate, linear_assignment
-from boxmot.trackers.basetracker import BaseTracker
-from boxmot.utils.ops import xyxy2xysr
+from ...motion.kalman_filters.xysr_kf import KalmanFilterXYSR
+from ...utils.association import associate, linear_assignment
+from ..basetracker import BaseTracker
+from ...utils.ops import xyxy2xysr
 
 
 def k_previous_obs(observations, cur_age, k):

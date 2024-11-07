@@ -3,8 +3,8 @@ import os
 import yaml
 from pathlib import Path
 
-from boxmot.utils.checks import RequirementsChecker
-from boxmot.utils import EXAMPLES, TRACKER_CONFIGS
+from ..boxmot.utils.checks import RequirementsChecker
+from ..boxmot.utils import EXAMPLES, TRACKER_CONFIGS
 from tracking.val import (
     run_generate_dets_embs,
     run_generate_mot_results,
@@ -12,7 +12,7 @@ from tracking.val import (
     parse_opt as parse_optt,
     download_mot_eval_tools
 )
-from boxmot.utils import ROOT, NUM_THREADS
+from ..boxmot.utils import ROOT, NUM_THREADS
 
 checker = RequirementsChecker()
 checker.check_packages(('ray[tune]',))  # install

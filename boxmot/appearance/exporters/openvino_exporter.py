@@ -2,8 +2,8 @@ import os
 from pathlib import Path
 import openvino.runtime as ov
 from openvino.tools import mo
-from boxmot.appearance.exporters.base_exporter import BaseExporter
-from boxmot.utils import logger as LOGGER
+from .base_exporter import BaseExporter
+from ...utils import logger as LOGGER
 
 
 class OpenVINOExporter(BaseExporter):

@@ -4,13 +4,13 @@ import numpy as np
 from torch import device
 from pathlib import Path
 
-from boxmot.appearance.reid_auto_backend import ReidAutoBackend
-from boxmot.motion.cmc import get_cmc_method
-from boxmot.trackers.strongsort.sort.detection import Detection
-from boxmot.trackers.strongsort.sort.tracker import Tracker
-from boxmot.utils.matching import NearestNeighborDistanceMetric
-from boxmot.utils.ops import xyxy2tlwh
-from boxmot.trackers.basetracker import BaseTracker
+from ...appearance.reid_auto_backend import ReidAutoBackend
+from ...motion.cmc import get_cmc_method
+from .sort.detection import Detection
+from .sort.tracker import Tracker
+from ...utils.matching import NearestNeighborDistanceMetric
+from ...utils.ops import xyxy2tlwh
+from ..basetracker import BaseTracker
 from ...appearance.fast_reid.fast_reid_interfece import FastReIDInterface
 
 

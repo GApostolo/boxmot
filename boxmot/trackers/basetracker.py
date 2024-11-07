@@ -3,8 +3,8 @@ import cv2 as cv
 import hashlib
 import colorsys
 from abc import ABC, abstractmethod
-from boxmot.utils import logger as LOGGER
-from boxmot.utils.iou import AssociationFunction
+from ..utils import logger as LOGGER
+from ..utils.iou import AssociationFunction
 
 
 class BaseTracker(ABC):

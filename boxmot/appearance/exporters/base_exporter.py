@@ -1,8 +1,8 @@
 import logging
 import torch
 from pathlib import Path
-from boxmot.utils.checks import RequirementsChecker
-from boxmot.utils import logger as LOGGER
+from ...utils.checks import RequirementsChecker
+from ...utils import logger as LOGGER
 
 
 def export_decorator(export_func):

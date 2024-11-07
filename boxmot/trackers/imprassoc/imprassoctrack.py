@@ -5,15 +5,15 @@ from collections import deque
 from pathlib import Path
 from torch import device
 
-from boxmot.appearance.reid_auto_backend import ReidAutoBackend
-from boxmot.motion.cmc.sof import SOF
-from boxmot.motion.kalman_filters.xywh_kf import KalmanFilterXYWH
-from boxmot.trackers.imprassoc.basetrack import BaseTrack, TrackState
-from boxmot.utils.matching import (embedding_distance, fuse_score,
+from ...appearance.reid_auto_backend import ReidAutoBackend
+from ...motion.cmc.sof import SOF
+from ...motion.kalman_filters.xywh_kf import KalmanFilterXYWH
+from .basetrack import BaseTrack, TrackState
+from ...utils.matching import (embedding_distance, fuse_score,
                                    iou_distance, linear_assignment,
                                    d_iou_distance)
-from boxmot.utils.ops import xywh2xyxy, xyxy2xywh
-from boxmot.trackers.basetracker import BaseTracker
+from ...utils.ops import xywh2xyxy, xyxy2xywh
+from ..basetracker import BaseTracker
 
 
 class STrack(BaseTrack):

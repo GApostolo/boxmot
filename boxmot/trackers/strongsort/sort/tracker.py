@@ -4,10 +4,10 @@ from __future__ import absolute_import
 
 import numpy as np
 
-from boxmot.motion.cmc import get_cmc_method
-from boxmot.trackers.strongsort.sort import iou_matching, linear_assignment
-from boxmot.trackers.strongsort.sort.track import Track
-from boxmot.utils.matching import chi2inv95
+from ....motion.cmc import get_cmc_method
+from . import iou_matching, linear_assignment
+from .track import Track
+from ....utils.matching import chi2inv95
 
 
 class Tracker:

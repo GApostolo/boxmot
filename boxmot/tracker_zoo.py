@@ -4,7 +4,7 @@ from importlib import import_module
 import sys
 from pathlib import Path
 import yaml
-from boxmot.utils import BOXMOT, TRACKER_CONFIGS
+from .utils import BOXMOT, TRACKER_CONFIGS
 
 def get_tracker_config(tracker_type):
     """Returns the path to the tracker configuration file."""

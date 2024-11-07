@@ -2,18 +2,18 @@ import argparse
 import time
 import torch
 from pathlib import Path
-from boxmot.appearance import export_formats
-from boxmot.utils.torch_utils import select_device
-from boxmot.appearance.reid_model_factory import get_model_name, load_pretrained_weights, build_model, get_nr_classes
-from boxmot.appearance.reid_auto_backend import ReidAutoBackend
-from boxmot.utils import WEIGHTS, logger as LOGGER
+from . import export_formats
+from ..utils.torch_utils import select_device
+from .reid_model_factory import get_model_name, load_pretrained_weights, build_model, get_nr_classes
+from .reid_auto_backend import ReidAutoBackend
+from ..utils import WEIGHTS, logger as LOGGER
 
-from boxmot.appearance.exporters.base_exporter import BaseExporter
-from boxmot.appearance.exporters.torchscript_exporter import TorchScriptExporter
-from boxmot.appearance.exporters.onnx_exporter import ONNXExporter
-from boxmot.appearance.exporters.openvino_exporter import OpenVINOExporter
-from boxmot.appearance.exporters.tflite_exporter import TFLiteExporter
-from boxmot.appearance.exporters.tensorrt_exporter import EngineExporter
+from .exporters.base_exporter import BaseExporter
+from .exporters.torchscript_exporter import TorchScriptExporter
+from .exporters.onnx_exporter import ONNXExporter
+from .exporters.openvino_exporter import OpenVINOExporter
+from .exporters.tflite_exporter import TFLiteExporter
+from .exporters.tensorrt_exporter import EngineExporter
 
 def parse_args():
     parser = argparse.ArgumentParser(description="ReID export")

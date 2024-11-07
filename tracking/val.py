@@ -16,19 +16,19 @@ from functools import partial
 import threading
 import sys
 
-from boxmot import TRACKERS
-from boxmot.tracker_zoo import create_tracker
-from boxmot.utils import ROOT, WEIGHTS, TRACKER_CONFIGS, logger as LOGGER, EXAMPLES, DATA
-from boxmot.utils.checks import RequirementsChecker
-from boxmot.utils.torch_utils import select_device
-from boxmot.data.loader import LoadImagesAndVideos
-from boxmot.utils.misc import increment_path
+from ..boxmot import TRACKERS
+from ..boxmot.tracker_zoo import create_tracker
+from ..boxmot.utils import ROOT, WEIGHTS, TRACKER_CONFIGS, logger as LOGGER, EXAMPLES, DATA
+from ..boxmot.utils.checks import RequirementsChecker
+from ..boxmot.utils.torch_utils import select_device
+from ..boxmot.data.loader import LoadImagesAndVideos
+from ..boxmot.utils.misc import increment_path
 
 from ultralytics import YOLO
 
 from tracking.detectors import get_yolo_inferer
 from tracking.utils import convert_to_mot_format, write_mot_results, download_mot_eval_tools, download_mot_dataset, unzip_mot_dataset, eval_setup, split_dataset
-from boxmot.appearance.reid_auto_backend import ReidAutoBackend
+from ..boxmot.appearance.reid_auto_backend import ReidAutoBackend
 
 checker = RequirementsChecker()
 checker.check_packages(('ultralytics @ git+https://github.com/mikel-brostrom/ultralytics.git', ))  # install

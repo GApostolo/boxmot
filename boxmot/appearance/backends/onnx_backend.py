@@ -1,7 +1,7 @@
 import numpy as np
 from pathlib import Path
 
-from boxmot.appearance.backends.base_backend import BaseModelBackend
+from .base_backend import BaseModelBackend
 
 
 class ONNXBackend(BaseModelBackend):

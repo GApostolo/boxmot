@@ -1,9 +1,9 @@
 # Mikel Broström 🔥 Yolo Tracking 🧾 AGPL-3.0 license
 
-from boxmot.motion.cmc.ecc import ECC
-from boxmot.motion.cmc.orb import ORB
-from boxmot.motion.cmc.sift import SIFT
-from boxmot.motion.cmc.sof import SOF
+from .ecc import ECC
+from .orb import ORB
+from .sift import SIFT
+from .sof import SOF
 
 
 def get_cmc_method(cmc_method):
