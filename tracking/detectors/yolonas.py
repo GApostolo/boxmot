@@ -7,7 +7,7 @@ from super_gradients.training import models
 from ultralytics.engine.results import Results
 from ultralytics.utils import ops
 
-from ...boxmot.utils import logger as LOGGER
+from boxmot.utils import logger as LOGGER
 from tracking.detectors.yolo_interface import YoloInterface
 
 

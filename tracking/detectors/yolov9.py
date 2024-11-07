@@ -10,7 +10,7 @@ from ultralytics.utils.downloads import download
 from ultralytics.utils import ops
 
 from yolov9 import load
-from ...boxmot.utils import logger as LOGGER
+from boxmot.utils import logger as LOGGER
 from examples.detectors.yolo_interface import YoloInterface
 
 

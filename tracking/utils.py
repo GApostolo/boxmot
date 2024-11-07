@@ -15,9 +15,9 @@ import requests
 import zipfile
 import subprocess
 from git import Repo, exc
-from ..boxmot.utils import logger as LOGGER
+from boxmot.utils import logger as LOGGER
 from tqdm import tqdm
-from ..boxmot.utils import EXAMPLES, ROOT
+from boxmot.utils import EXAMPLES, ROOT
 
 
 def split_dataset(src_fldr: Path, percent_to_delete: float = 0.5) -> None:
