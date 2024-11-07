@@ -1,5 +1,8 @@
 # Mikel Broström 🔥 Yolo Tracking 🧾 AGPL-3.0 license
 
+from importlib import import_module
+import sys
+from pathlib import Path
 import yaml
 from boxmot.utils import BOXMOT, TRACKER_CONFIGS
 
@@ -7,7 +10,10 @@ def get_tracker_config(tracker_type):
     """Returns the path to the tracker configuration file."""
     return TRACKER_CONFIGS / f'{tracker_type}.yaml'
 
-def create_tracker(tracker_type, tracker_config=None, reid_weights=None, device=None, half=None, per_class=None, evolve_param_dict=None):
+
+def create_tracker(tracker_type, tracker_config=None, reid_weights=None, device=None, half=None, per_class=None,
+                   evolve_param_dict=None, is_fast_reid: bool = True,
+                   fast_reid_config: str = "boxmot/appearance/fast_reid/configs/MOT20/sbs_S50.yml",):
     """
     Creates and returns an instance of the specified tracker type.
     
@@ -37,17 +43,20 @@ def create_tracker(tracker_type, tracker_config=None, reid_weights=None, device=
         'reid_weights': reid_weights,
         'device': device,
         'half': half,
+        'is_fast_reid': is_fast_reid,
+        'fast_reid_config': fast_reid_config
+
     }
 
     # Map tracker types to their corresponding classes
     tracker_mapping = {
-        'strongsort': 'boxmot.trackers.strongsort.strongsort.StrongSort',
-        'ocsort': 'boxmot.trackers.ocsort.ocsort.OcSort',
-        'bytetrack': 'boxmot.trackers.bytetrack.bytetrack.ByteTrack',
-        'botsort': 'boxmot.trackers.botsort.botsort.BotSort',
-        'deepocsort': 'boxmot.trackers.deepocsort.deepocsort.DeepOcSort',
-        'hybridsort': 'boxmot.trackers.hybridsort.hybridsort.HybridSort',
-        'imprassoc': 'boxmot.trackers.imprassoc.imprassoctrack.ImprAssocTrack'
+        'strongsort': '.trackers.strongsort.strongsort.StrongSort',
+        'ocsort': '.trackers.ocsort.ocsort.OcSort',
+        'bytetrack': '.trackers.bytetrack.bytetrack.ByteTrack',
+        'botsort': '.trackers.botsort.botsort.BotSort',
+        'deepocsort': '.trackers.deepocsort.deepocsort.DeepOcSort',
+        'hybridsort': '.trackers.hybridsort.hybridsort.HybridSort',
+        'imprassoc': '.trackers.imprassoc.imprassoctrack.ImprAssocTrack'
     }
 
     # Check if the tracker type exists in the mapping
@@ -57,8 +66,28 @@ def create_tracker(tracker_type, tracker_config=None, reid_weights=None, device=
 
     # Dynamically import and instantiate the correct tracker class
     module_path, class_name = tracker_mapping[tracker_type].rsplit('.', 1)
-    tracker_class = getattr(__import__(module_path, fromlist=[class_name]), class_name)
-    
+
+    try:
+        tracker_module = import_module(module_path, package='boxmot')
+        tracker_class = getattr(tracker_module, class_name)
+    except ImportError:
+        project_root = Path(__file__).resolve().parents[2]
+        sys.path.insert(0, str(project_root))
+
+        tracker_mapping = {
+            'strongsort': 'trackers.boxmot.trackers.strongsort.strongsort.StrongSort',
+            'ocsort': 'trackers.boxmot.trackers.ocsort.ocsort.OcSort',
+            'bytetrack': 'trackers.boxmot.trackers.bytetrack.bytetrack.ByteTrack',
+            'botsort': 'trackers.boxmot.trackers.botsort.botsort.BotSort',
+            'deepocsort': 'trackers.boxmot.trackers.deepocsort.deepocsort.DeepOcSort',
+            'hybridsort': 'trackers.boxmot.trackers.hybridsort.hybridsort.HybridSort',
+            'imprassoc': 'trackers.boxmot.trackers.imprassoc.imprassoctrack.ImprAssocTrack'
+        }
+
+        module_path, class_name = tracker_mapping[tracker_type].rsplit('.', 1)
+        tracker_module = import_module(module_path)
+        tracker_class = getattr(tracker_module, class_name)
+
     # For specific trackers, update tracker arguments with ReID parameters
     if tracker_type in ['strongsort', 'botsort', 'deepocsort', 'hybridsort', 'imprassoc']:
         tracker_args['per_class'] = per_class

@@ -5,14 +5,14 @@ import torch
 from pathlib import Path
 from collections import deque
 
-from boxmot.appearance.reid_auto_backend import ReidAutoBackend
-from boxmot.motion.cmc import get_cmc_method
-from boxmot.motion.kalman_filters.xysr_kf import KalmanFilterXYSR
-from boxmot.motion.kalman_filters.xywh_kf import KalmanFilterXYWH
-from boxmot.utils.association import associate, linear_assignment
-from boxmot.trackers.basetracker import BaseTracker
-from boxmot.utils.ops import xyxy2xysr
-
+from ...appearance.reid_auto_backend import ReidAutoBackend
+from ...motion.cmc import get_cmc_method
+from ...motion.kalman_filters.xysr_kf import KalmanFilterXYSR
+from ...motion.kalman_filters.xywh_kf import KalmanFilterXYWH
+from ...utils.association import associate, linear_assignment
+from ...trackers.basetracker import BaseTracker
+from ...utils.ops import xyxy2xysr
+from ...appearance.fast_reid.fast_reid_interfece import FastReIDInterface
 
 def k_previous_obs(observations, cur_age, k):
     if len(observations) == 0:
@@ -269,6 +269,8 @@ class DeepOcSort(BaseTracker):
         aw_off: bool = False,
         Q_xy_scaling: float = 0.01,
         Q_s_scaling: float = 0.0001,
+        is_fast_reid: bool = False,
+        fast_reid_config: str = "fast_reid/configs/MOT20/sbs_S50.yml",
         **kwargs: dict
     ):
         super().__init__(max_age=max_age, per_class=per_class, asso_func=asso_func)
@@ -290,9 +292,10 @@ class DeepOcSort(BaseTracker):
         self.Q_s_scaling = Q_s_scaling
         KalmanBoxTracker.count = 1
 
-        self.model = ReidAutoBackend(
-            weights=reid_weights, device=device, half=half
-        ).model
+        if is_fast_reid:
+            self.model = FastReIDInterface(fast_reid_config, str(reid_weights), device.type)
+        else:
+            self.model = ReidAutoBackend(weights=reid_weights, device=device, half=half).model
         # "similarity transforms using feature point extraction, optical flow, and RANSAC"
         self.cmc = get_cmc_method('sof')()
         self.embedding_off = embedding_off

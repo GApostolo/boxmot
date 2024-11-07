@@ -76,7 +76,7 @@ class FastReIDInterface:
     def warmup(self, imgsz=[(256, 128, 3)]):
         pass
 
-    def inference(self, image, detections):
+    def get_features(self, detections, image):
 
         if detections is None or np.size(detections) == 0:
             return []

@@ -11,6 +11,7 @@ from boxmot.trackers.strongsort.sort.tracker import Tracker
 from boxmot.utils.matching import NearestNeighborDistanceMetric
 from boxmot.utils.ops import xyxy2tlwh
 from boxmot.trackers.basetracker import BaseTracker
+from ...appearance.fast_reid.fast_reid_interfece import FastReIDInterface
 
 
 class StrongSort(object):
@@ -43,12 +44,15 @@ class StrongSort(object):
         nn_budget=100,
         mc_lambda=0.98,
         ema_alpha=0.9,
+        is_fast_reid: bool = False,
+        fast_reid_config: str = "fast_reid/configs/MOT20/sbs_S50.yml"
     ):
 
         self.per_class = per_class
-        self.model = ReidAutoBackend(
-            weights=reid_weights, device=device, half=half
-        ).model
+        if is_fast_reid:
+            self.model = FastReIDInterface(fast_reid_config, str(reid_weights), device.type)
+        else:
+            self.model = ReidAutoBackend(weights=reid_weights, device=device, half=half).model
 
         self.tracker = Tracker(
             metric=NearestNeighborDistanceMetric("cosine", max_cos_dist, nn_budget),

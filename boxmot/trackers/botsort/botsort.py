@@ -14,6 +14,7 @@ from boxmot.trackers.basetracker import BaseTracker
 from boxmot.trackers.botsort.botsort_utils import joint_stracks, sub_stracks, remove_duplicate_stracks 
 from boxmot.trackers.botsort.botsort_track import STrack
 from boxmot.motion.cmc import get_cmc_method
+from ...appearance.fast_reid.fast_reid_interfece import FastReIDInterface
 
 
 
@@ -56,6 +57,8 @@ class BotSort(BaseTracker):
         frame_rate=30,
         fuse_first_associate: bool = False,
         with_reid: bool = True,
+        is_fast_reid: bool = False,
+        fast_reid_config: str = "fast_reid/configs/MOT20/sbs_S50.yml"
     ):
         super().__init__(per_class=per_class)
         self.lost_stracks = []  # type: list[STrack]
@@ -77,9 +80,10 @@ class BotSort(BaseTracker):
         self.appearance_thresh = appearance_thresh
         self.with_reid = with_reid
         if self.with_reid:
-            self.model = ReidAutoBackend(
-                weights=reid_weights, device=device, half=half
-            ).model
+            if is_fast_reid:
+                self.model = FastReIDInterface(fast_reid_config, str(reid_weights), device.type)
+            else:
+                self.model = ReidAutoBackend(weights=reid_weights, device=device, half=half).model
 
         self.cmc = get_cmc_method(cmc_method)()
         self.fuse_first_associate = fuse_first_associate
