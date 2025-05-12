@@ -128,9 +128,9 @@ class ByteTrack(BaseTracker):
     """
     def __init__(
         self,
-        track_thresh: float = 0.45,
-        match_thresh: float = 0.8,
-        track_buffer: int = 25,
+        track_thresh: float = 0.6,
+        match_thresh: float = 0.7,
+        track_buffer: int = 100,
         frame_rate: int = 30,
         per_class: bool = False,
     ):
