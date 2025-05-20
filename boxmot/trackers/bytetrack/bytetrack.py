@@ -71,7 +71,7 @@ class ByteTrack(BaseTracker):
         if len(dets) > 0:
             """Detections"""
             detections = [
-                GeneralTracker(det, max_obs=self.max_obs) for det in dets
+                GeneralTracker(det, max_obs=self.max_obs, type="byte") for det in dets
             ]
         else:
             detections = []
@@ -110,7 +110,7 @@ class ByteTrack(BaseTracker):
         # association the untrack to the low conf detections
         if len(dets_second) > 0:
             """Detections"""
-            detections_second = [GeneralTracker(det_second, max_obs=self.max_obs) for det_second in dets_second]
+            detections_second = [GeneralTracker(det_second, max_obs=self.max_obs, type="byte") for det_second in dets_second]
         else:
             detections_second = []
         r_tracked_stracks = [

@@ -7,15 +7,13 @@ from pathlib import Path
 from ...motion.kalman_filters.xywh_kf import KalmanFilterXYWH
 from ...appearance.reid_auto_backend import ReidAutoBackend
 from ...motion.cmc.sof import SOF
-from .basetrack import BaseTrack, TrackState
+from basetracker import GeneralTracker, TrackState
 from ...utils.matching import (embedding_distance, fuse_score,
                                    iou_distance, linear_assignment)
 from ..basetracker import BaseTracker
 from .botsort_utils import joint_stracks, sub_stracks, remove_duplicate_stracks
-from .botsort_track import STrack
 from ...motion.cmc import get_cmc_method
 from ...appearance.fast_reid.fast_reid_interfece import FastReIDInterface
-
 
 
 class BotSort(BaseTracker):
@@ -63,7 +61,7 @@ class BotSort(BaseTracker):
         super().__init__(per_class=per_class)
         self.lost_stracks = []  # type: list[STrack]
         self.removed_stracks = []  # type: list[STrack]
-        BaseTrack.clear_count()
+        self._counter = 0
 
         self.per_class = per_class
         self.track_high_thresh = track_high_thresh
@@ -144,9 +142,9 @@ class BotSort(BaseTracker):
     def _create_detections(self, dets_first, features_high):
         if len(dets_first) > 0:
             if self.with_reid:
-                detections = [STrack(det, f, max_obs=self.max_obs) for (det, f) in zip(dets_first, features_high)]
+                detections = [GeneralTracker(det, f, max_obs=self.max_obs, type="bot") for (det, f) in zip(dets_first, features_high)]
             else:
-                detections = [STrack(det, max_obs=self.max_obs) for det in dets_first]
+                detections = [GeneralTracker(det, max_obs=self.max_obs, type="bot") for det in dets_first]
         else:
             detections = []
         return detections
@@ -162,12 +160,12 @@ class BotSort(BaseTracker):
 
     def _first_association(self, dets, dets_first, active_tracks, unconfirmed, img, detections, activated_stracks, refind_stracks, strack_pool):
         
-        STrack.multi_predict(strack_pool)
+        self.multi_predict(strack_pool)
 
         # Fix camera motion
         warp = self.cmc.apply(img, dets)
-        STrack.multi_gmc(strack_pool, warp)
-        STrack.multi_gmc(unconfirmed, warp)
+        self.multi_gmc(strack_pool, warp)
+        self.multi_gmc(unconfirmed, warp)
 
         # Associate with high confidence detection boxes
         ious_dists = iou_distance(strack_pool, detections)
@@ -189,17 +187,17 @@ class BotSort(BaseTracker):
             track = strack_pool[itracked]
             det = detections[idet]
             if track.state == TrackState.Tracked:
-                track.update(detections[idet], self.frame_count)
+                self.update_tracks(track, detections[idet], self.frame_count)
                 activated_stracks.append(track)
             else:
-                track.re_activate(det, self.frame_count, new_id=False)
+                self.re_activate(track, det, self.frame_count, new_id=False)
                 refind_stracks.append(track)
                 
         return matches, u_track, u_detection
 
     def _second_association(self, dets_second, activated_stracks, lost_stracks, refind_stracks, u_track_first, strack_pool):
         if len(dets_second) > 0:
-            detections_second = [STrack(det, max_obs=self.max_obs) for det in dets_second]
+            detections_second = [GeneralTracker(det, max_obs=self.max_obs, type="bot") for det in dets_second]
         else:
             detections_second = []
 
@@ -216,10 +214,10 @@ class BotSort(BaseTracker):
             track = r_tracked_stracks[itracked]
             det = detections_second[idet]
             if track.state == TrackState.Tracked:
-                track.update(det, self.frame_count)
+                self.update_tracks(track, det, self.frame_count)
                 activated_stracks.append(track)
             else:
-                track.re_activate(det, self.frame_count, new_id=False)
+                self.re_activate(track, det, self.frame_count, new_id=False)
                 refind_stracks.append(track)
 
         for it in u_track:
@@ -265,7 +263,7 @@ class BotSort(BaseTracker):
         
         # Update matched unconfirmed tracks
         for itracked, idet in matches:
-            unconfirmed[itracked].update(detections[idet], self.frame_count)
+            self.update_tracks(unconfirmed[itracked], detections[idet], self.frame_count)
             activated_stracks.append(unconfirmed[itracked])
 
         # Mark unmatched unconfirmed tracks as removed
@@ -282,7 +280,7 @@ class BotSort(BaseTracker):
             if track.conf < self.new_track_thresh:
                 continue
 
-            track.activate(self.kalman_filter, self.frame_count)
+            self.activate(track, self.kalman_filter, self.frame_count)
             activated_stracks.append(track)
 
     def _update_tracks(self, matches, strack_pool, detections, activated_stracks, refind_stracks, mark_removed=False):
@@ -291,10 +289,10 @@ class BotSort(BaseTracker):
             track = strack_pool[itracked]
             det = detections[idet]
             if track.state == TrackState.Tracked:
-                track.update(det, self.frame_count)
+                self.update_tracks(track, det, self.frame_count)
                 activated_stracks.append(track)
             else:
-                track.re_activate(det, self.frame_count, new_id=False)
+                self.re_activate(track, det, self.frame_count, new_id=False)
                 refind_stracks.append(track)
         
         # Mark only unmatched tracks as removed, if mark_removed flag is True
@@ -329,3 +327,116 @@ class BotSort(BaseTracker):
         ]
 
         return np.asarray(outputs)
+
+    def next_id(self) -> int:
+        """
+        Generates the next unique track ID.
+
+        Returns:
+            int: A unique track ID.
+        """
+        self._counter += 1
+        return self._counter
+
+    @staticmethod
+    def update_features(track, feat):
+        """Normalize and update feature vectors."""
+        feat /= np.linalg.norm(feat)
+        track.curr_feat = feat
+        if track.smooth_feat is None:
+            track.smooth_feat = feat
+        else:
+            track.smooth_feat = track.alpha * track.smooth_feat + (1 - track.alpha) * feat
+        track.smooth_feat /= np.linalg.norm(track.smooth_feat)
+        track.features.append(feat)
+
+    @staticmethod
+    def update_cls(track, cls, conf):
+        """Update class history based on detection confidence."""
+        max_freq = 0
+        found = False
+        for c in track.cls_hist:
+            if cls == c[0]:
+                c[1] += conf
+                found = True
+            if c[1] > max_freq:
+                max_freq = c[1]
+                track.cls = c[0]
+        if not found:
+            track.cls_hist.append([cls, conf])
+            track.cls = cls
+
+    @staticmethod
+    def multi_predict(stracks):
+        """Perform batch prediction for multiple tracks."""
+        shared_kalman = KalmanFilterXYWH()
+        if not stracks:
+            return
+        multi_mean = np.asarray([st.mean.copy() for st in stracks])
+        multi_covariance = np.asarray([st.covariance for st in stracks])
+        for i, st in enumerate(stracks):
+            if st.state != TrackState.Tracked:
+                multi_mean[i][6:8] = 0  # Reset velocities
+        multi_mean, multi_covariance = shared_kalman.multi_predict(multi_mean, multi_covariance)
+        for st, mean, cov in zip(stracks, multi_mean, multi_covariance):
+            st.mean, st.covariance = mean, cov
+
+    @staticmethod
+    def multi_gmc(stracks, H=np.eye(2, 3)):
+        """Apply geometric motion compensation to multiple tracks."""
+        if not stracks:
+            return
+        R = H[:2, :2]
+        R8x8 = np.kron(np.eye(4), R)
+        t = H[:2, 2]
+
+        for st in stracks:
+            mean = R8x8.dot(st.mean)
+            mean[:2] += t
+            st.mean = mean
+            st.covariance = R8x8.dot(st.covariance).dot(R8x8.T)
+
+    def activate(self, track, kalman_filter, frame_id):
+        """Activate a new track."""
+        track.kalman_filter = kalman_filter
+        track.id = self.next_id()
+        track.mean, track.covariance = track.kalman_filter.initiate(track.xywh)
+        track.tracklet_len = 0
+        track.state = TrackState.Tracked
+        if frame_id == 1:
+            track.is_activated = True
+        track.frame_id = frame_id
+        track.start_frame = frame_id
+
+    def re_activate(self, track, new_track, frame_id, new_id=False):
+        """Re-activate a track with a new detection."""
+        track.mean, track.covariance = track.kalman_filter.update(track.mean, track.covariance, new_track.xywh)
+        if new_track.curr_feat is not None:
+            self.update_features(track, new_track.curr_feat)
+        track.tracklet_len = 0
+        track.state = TrackState.Tracked
+        track.is_activated = True
+        track.frame_id = frame_id
+        if new_id:
+            track.id = self.next_id()
+        track.conf = new_track.conf
+        track.cls = new_track.cls
+        track.det_ind = new_track.det_ind
+        self.update_cls(track, new_track.cls, new_track.conf)
+
+    def update_tracks(self, track, new_track, frame_id):
+        """Update the current track with a matched detection."""
+        track.frame_id = frame_id
+        track.tracklet_len += 1
+        track.history_observations.append(track.xyxy)
+
+        track.mean, track.covariance = track.kalman_filter.update(track.mean, track.covariance, new_track.xywh)
+        if new_track.curr_feat is not None:
+            self.update_features(track, new_track.curr_feat)
+
+        track.state = TrackState.Tracked
+        track.is_activated = True
+        track.conf = new_track.conf
+        track.cls = new_track.cls
+        track.det_ind = new_track.det_ind
+        self.update_cls(track, new_track.cls, new_track.conf)
