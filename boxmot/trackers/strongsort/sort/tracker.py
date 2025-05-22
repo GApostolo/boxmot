@@ -209,10 +209,13 @@ class Tracker:
 
         feature = detection.feat / np.linalg.norm(detection.feat)
 
-        smooth_feat = (
-                self.tracks[id].alpha * self.tracks[id].features[-1] + (1 - self.tracks[id].alpha) * feature
-        )
-        smooth_feat /= np.linalg.norm(smooth_feat)
+        try:
+            smooth_feat = (
+                    self.tracks[id].alpha * self.tracks[id].features[-1] + (1 - self.tracks[id].alpha) * feature
+            )
+            smooth_feat /= np.linalg.norm(smooth_feat)
+        except:
+            smooth_feat = feature
         self.tracks[id].features = [smooth_feat]
 
         self.tracks[id].hits += 1
