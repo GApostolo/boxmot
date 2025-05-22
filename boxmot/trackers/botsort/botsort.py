@@ -228,6 +228,28 @@ class BotSort(BaseTracker):
                 
         return matches, u_track, u_detection
 
+    def featurize_tracks(self, dets: np.ndarray, img: np.ndarray, frame_id):
+        """
+        Creates new featurized tracks and add them to active tracks
+        """
+        features_high = self.model.get_features(dets[:, 0:4], img)
+
+        # Create detections
+        detections = []
+        for (det, f) in zip(dets, features_high):
+            track = GeneralTracker(det, f, max_obs=self.max_obs, type="bot")
+            track.id = det[7]
+            track.kalman_filter = KalmanFilterXYWH()
+            track.mean, track.covariance = track.kalman_filter.initiate(track.xywh)
+            track.tracklet_len = 0
+            track.state = TrackState.Tracked
+            track.is_activated = True
+            track.frame_id = frame_id
+            track.start_frame = frame_id
+            detections.append(track)
+
+        self.active_tracks = detections
+
 
     def _handle_unconfirmed_tracks(self, u_detection, detections, activated_stracks, removed_stracks, unconfirmed):
         """
