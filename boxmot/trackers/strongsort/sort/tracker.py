@@ -5,8 +5,10 @@ from __future__ import absolute_import
 import numpy as np
 
 from ....motion.cmc import get_cmc_method
+from ....motion.kalman_filters.xyah_kf import KalmanFilterXYAH
 from . import iou_matching, linear_assignment
-from .track import Track
+from basetracker import GeneralTracker, TrackState
+from utility import Converter
 from ....utils.matching import chi2inv95
 
 
@@ -65,7 +67,9 @@ class Tracker:
         This function should be called once every time step, before `update`.
         """
         for track in self.tracks:
-            track.predict()
+            track.mean, track.covariance = track.kalman_filter.predict(track.mean, track.covariance)
+            track.age += 1
+            track.time_since_update += 1
 
     def increment_ages(self):
         for track in self.tracks:
@@ -86,9 +90,9 @@ class Tracker:
 
         # Update track set.
         for track_idx, detection_idx in matches:
-            self.tracks[track_idx].update(detections[detection_idx])
+            self.update_tracks(detections[detection_idx], track_idx)
         for track_idx in unmatched_tracks:
-            self.tracks[track_idx].mark_missed()
+            self.mark_missed(track_idx)
         for detection_idx in unmatched_detections:
             self._initiate_track(detections[detection_idx])
         self.tracks = [t for t in self.tracks if not t.is_deleted()]
@@ -157,13 +161,71 @@ class Tracker:
         return matches, unmatched_tracks, unmatched_detections
 
     def _initiate_track(self, detection):
+        xyxy = Converter.tlwh2xyxy(detection.tlwh)
+        det = np.concatenate([xyxy, [detection.conf, detection.cls, detection.det_ind]])
+        track = GeneralTracker(det, feat=None, feat_history=50, max_obs=50, type=None)
+        track.id = self._next_id
+        track.xyah = detection.to_xyah()
+        track.conf = detection.conf
+        track.cls = detection.cls
+        track.det_ind = detection.det_ind
+        track.hits = 1
+        track.age = 1
+        track.time_since_update = 0
+        track.alpha = self.ema_alpha
+
+        # start with confirmed in Ci as test expect equal amount of outputs as inputs
+        track.state = TrackState.Tentative
+        track.features = []
+        if detection.feat is not None:
+            detection.feat /= np.linalg.norm(detection.feat)
+            track.features.append(detection.feat)
+
+        track._n_init = self.n_init
+        track._max_age = self.max_age
+
+        track.kalman_filter = KalmanFilterXYAH()
+        track.mean, track.covariance = track.kalman_filter.initiate(detection.to_xyah())
         self.tracks.append(
-            Track(
-                detection,
-                self._next_id,
-                self.n_init,
-                self.max_age,
-                self.ema_alpha,
-            )
+            track
         )
         self._next_id += 1
+
+    def update_tracks(self, detection, id: int):
+        """Perform Kalman filter measurement update step and update the feature
+        cache.
+        Parameters
+        ----------
+        detection : Detection
+            The associated detection.
+        """
+        self.tracks[id].xyah = detection.to_xyah()
+        self.tracks[id].conf = detection.conf
+        self.tracks[id].cls = detection.cls
+        self.tracks[id].det_ind = detection.det_ind
+        self.tracks[id].mean, self.tracks[id].covariance = self.tracks[id].kalman_filter.update(
+            self.tracks[id].mean, self.tracks[id].covariance, self.tracks[id].xyah, self.tracks[id].conf
+        )
+
+        feature = detection.feat / np.linalg.norm(detection.feat)
+
+        try:
+            smooth_feat = (
+                    self.tracks[id].alpha * self.tracks[id].features[-1] + (1 - self.tracks[id].alpha) * feature
+            )
+            smooth_feat /= np.linalg.norm(smooth_feat)
+        except:
+            smooth_feat = feature
+        self.tracks[id].features = [smooth_feat]
+
+        self.tracks[id].hits += 1
+        self.tracks[id].time_since_update = 0
+        if self.tracks[id].state == TrackState.Tentative and self.tracks[id].hits >= self.tracks[id]._n_init:
+            self.tracks[id].state = TrackState.Tracked
+
+    def mark_missed(self, id: int):
+        """Mark this track as missed (no association at the current time step)."""
+        if self.tracks[id].state == TrackState.Tentative:
+            self.tracks[id].state = TrackState.Removed
+        elif self.tracks[id].time_since_update > self.tracks[id]._max_age:
+            self.tracks[id].state = TrackState.Removed
