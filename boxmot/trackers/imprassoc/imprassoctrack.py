@@ -228,7 +228,9 @@ class ImprAssocTrack(BaseTracker):
         appearance_thresh: float = 0.25,
         cmc_method: str = "sparseOptFlow",
         frame_rate=30,
-        with_reid: bool = True
+        with_reid: bool = True,
+        is_fast_reid: bool = False,
+        fast_reid_config: str = "fast_reid/configs/MOT20/sbs_S50.yml"
     ):
         super().__init__(per_class=per_class)
         self.active_tracks = []  # type: list[STrack]
